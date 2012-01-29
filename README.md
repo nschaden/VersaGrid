@@ -14,14 +14,14 @@ VersaGrid is a highly configurable and dynamic grid layout plugin. The focus her
 
 1. Include jQuery and the VersaGrid script in your markup. VersaGrid requires jQuery v1.4.2 or greater.
 
-<pre>
+<pre><code>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="<proper path>/versagrid.js"></script>
-</pre>
+</code></pre>
 
 2. VersaGrid works with three types of elements: a single *container* that holds a bunch of *items*, all of the direct children of the container. Finally, within each item there are *inner elements* that are automatically repositioned as well:
 
-<pre>
+<pre><code>
 <div id="#container">
 	<div class="item">
 		<img alt="" class="innerelement" src="sample1.jpg"/>
@@ -33,24 +33,24 @@ VersaGrid is a highly configurable and dynamic grid layout plugin. The focus her
 		<img alt="" class="innerelement" src="sample3.jpg"/>
 	</div>
 </div>
-</pre>
+</code></pre>
 
 3. There should be a few basic CSS styling rules added to each major type of element, along with a few simple ones to handle VersaGrid's default styling:
 
-<pre>
+<pre><code>
 #container { position: relative; }
 .item { float: left; left: 0; position: relative; top: 0; }
 .versaGridContainer .versaGridItem.wide .versaGridInner { width: auto; height: 100%; }
 .versaGridContainer .versaGridItem.tall .versaGridInner { width: 100%; height: auto; }
-</pre>
+</code></pre>
 
 4. Run VersaGrid with a simple line of Javascript, ideally to be called on document ready:
 
-<pre>
+<pre><code>
 $(function(){
 	$('#container').versaGrid();
 });
-</pre>
+</code></pre>
 
 ## How VersaGrid works
 
@@ -66,7 +66,7 @@ $(function(){
 
 Just include optional parameters when invoking VersaGrid. For example:
 
-<pre>
+<pre><code>
 $(function(){
 	$('#container').versaGrid({
 		basewidth:450,
@@ -74,31 +74,37 @@ $(function(){
 		idealaspect:1.5
 	});
 });
-</pre>
+</code></pre>
 
 
 ### basewidth
 *Default: not provided*
+
 If this is provided, the normally calculated "base" width is ignored and instead this is set as the base/max width of any element.
 
 ### forcespan
 *Default: true*
+
 When this boolean is set to true, inner elements of item are automatically stretched/reduced in size to ensure they always cover the edges of each item (note the original aspect ratio is always preserved) giving a cleaner look. However, any sort of auto spanning can cause inner elements to be a bit soft, so this can be set to false; the inner elements will be centered but not resized.
 
 ### idealaspect
 *Default: not provided*
+
 If this is provided, the normally calculated ideal aspect ratio is ignored, and this becomes the proper aspect ratio. Provide this in the form a single float number: so 1 for 1x1, 1.5 for a 1.5x1 or 3x2 aspect ratio, and so on.
 
 ### innerelements
-*Default: \**
+*Default: '\*'*
+
 It's assumed that all elements within a item should be treated as  inner elements, auto centered and resized to maximize their visibility within the boundaries of each item. Yet this only works well for image and video elements; items like text or other specially laid out elements can look strange. Change this jQuery selector from '*' (all elements) to something else in that case, such as 'img' for all images, or '.oneclassname' for a single targeted class.
 
 ### smallestbasewidth
 *Default: false*
+
 Sometimes inner elements look blurry or otherwise bad when scaled to a size larger than the exact file dimensions. To prevent this from happening, set this boolean option to true. To do so, the base width will be set to the smallest width of all the inner elements measured.
 
 ### zoom
 *Default: 1*
+
 By default VersaGrid makes its width, height and aspect ratio calculations based on the size of the elements as is when the plugin is initialized. However, sometimes this can result in unintentionally too large or too small items. Setting this number to something other than 1 sets it as a zoom multiplier on the base width. For example, 2 doubles the width of all the items, while 0.5 would half them (and roughly double the number of items that fit on any single row.) For one practical example, perhaps VersaGrid is invoked on a gallery of higher resolution images that when split up only result in one or two per row on a large resolution monitor. The intention in this case it to show or provide many more on screen at once, so setting zoom to 0.5 or lower could make a lot of sense.
 
 ## Additional credits
