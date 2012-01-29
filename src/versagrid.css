@@ -1,0 +1,15 @@
+/*
+	VersaGrid helper CSS
+	author: 	nschaden
+	web: 		nickschaden.com
+	version: 	0.3
+	Import this stylesheet directly or copy the rules directly into an existing stylesheet.
+ */
+.versaGridContainer .versaGridItem { float: left; overflow: hidden; position: relative; }
+.versaGridContainer .versaGridInner { float: left; left: 0; position: absolute; top: 0; } 
+.versaGridContainer .versaGridInner.topLeft { left: 0; top: 0; }
+.versaGridContainer .versaGridInner.topRight { left: auto; right: 0; top: 0; }
+.versaGridContainer .versaGridInner.bottomLeft { bottom: 0; left: 0; top: auto; }
+.versaGridContainer .versaGridInner.bottomRight { bottom: 0; left: auto; right: 0; top: auto; }
+.versaGridContainer .versaGridItem.wide .versaGridInner { width: auto; height: 100%; }
+.versaGridContainer .versaGridItem.tall .versaGridInner { width: 100%; height: auto; }

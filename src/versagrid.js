@@ -2,7 +2,7 @@
 	VersaGrid
 	author: 	nschaden
 	web: 		nickschaden.com
-	version: 	0.2 
+	version: 	0.3
  */
 (function($) 
 {
@@ -10,6 +10,8 @@
 	{
 		// variables
 		var defaultOptions = {
+			// function to call after initialization is done
+			afterinit: function() { grid.children().show(); },
 			// override base width
 			basewidth: null,
 			// force inner elements to span width/height of block (no spaces) 
@@ -18,7 +20,7 @@
 			idealaspect: null,
 			// selector element to determine inner elements within block
 			innerelements: '*',
-			// position of inner elements within a block (topLeft,topRight,bottomLeft,bottomRight,center), to be added
+			// position of inner elements within a block (topLeft,topRight,bottomLeft,bottomRight,center)
 			positioninner: 'center',
 			// forces the base width to be simply smallest width available (then no item stretches past natural size)
 			smallestbasewidth: false,
@@ -30,6 +32,7 @@
 		$.fn.versaGrid.itemdimensions = [];
 		$.fn.versaGrid.options = $.extend({},defaultOptions,options);
 		$.fn.versaGrid.previtemsrow = 0;
+		$.fn.versaGrid.dimensonscalculated = false;
 		// public functions
 		this.calcWidthRatio = function()
 		{
@@ -50,6 +53,12 @@
 	  			curritem.addClass('versaGridItem');
 	  			var w = curritem.outerWidth();
 	  			var h = curritem.outerHeight();
+	  			// if an item has no calculated width, that implies the item hasn't been loaded yet, so pause, retry init later
+	  			if (w < 1)
+	  			{
+	  				setTimeout(function() { grid.versaGrid(); },500);
+	  				return;
+	  			}	  					
 	  			var a = Math.round((w/h)*10)/10;
 	  			itemdimensions.push({width:w,height:h,aspect:a});
 	  			// map out aspect ratios
@@ -62,7 +71,7 @@
 	  			widths[w] = (typeof widthdata == 'undefined') ? 1 : widthdata+1;
 	  			totalwidths += w;
 	  		}
-
+	  		$.fn.versaGrid.dimensonscalculated = true;
 	  		var avgaspect = totalaspects/items.length;
 	  		var avgwidth = totalwidths/items.length;
 
@@ -139,11 +148,17 @@
 	  			var curritem = items.eq(i);
 	  			var currinner = curritem.find($.fn.versaGrid.options.innerelements);
 	  			currinner.addClass('versaGridInner');
+	  			if ($.fn.versaGrid.options.positioninner == 'topLeft' || 
+	  				$.fn.versaGrid.options.positioninner == 'topRight' || 
+	  				$.fn.versaGrid.options.positioninner == 'bottomLeft' || 
+	  				$.fn.versaGrid.options.positioninner == 'bottomRight')
+	  				currinner.addClass($.fn.versaGrid.options.positioninner);
 	  			var widerthanideal = ((itemdimensions[i].width/itemdimensions[i].height) > idealaspect);
 	  			var percentageoffset;
 	  			if ($.fn.versaGrid.options.forcespan)
-	  			{
 	  				curritem.addClass(widerthanideal ? 'wide' : 'tall');
+	  			if ($.fn.versaGrid.options.forcespan && $.fn.versaGrid.options.positioninner == 'center')
+	  			{
 	  				percentageoffset = widerthanideal ? (itemdimensions[i].width/itemdimensions[i].height)/idealaspect : idealaspect/(itemdimensions[i].width/itemdimensions[i].height);
 	  				percentageoffset = Math.round((percentageoffset-1)*100)/2;
 	  				// for more horizontal items, center horizontally
@@ -182,7 +197,7 @@
 	  		}
 
 	  		// unfortunately for non spanned item, extra work to center item
-	  		if (!$.fn.versaGrid.options.forcespan)
+	  		if (!$.fn.versaGrid.options.forcespan && $.fn.versaGrid.options.positioninner == 'center')
   			{
   				var inner = items.find($.fn.versaGrid.options.innerelements);
   				var containerwidth = this.width();
@@ -204,10 +219,14 @@
 		var grid = this;
 		grid.addClass('versaGridContainer');
 		grid.calcWidthRatio();
-  		$(window).resize(function() { grid.resizeGrid(); });
-  		grid.resizeGrid();
-  		grid.positionInner();
-  		// constructor end
+		if ($.fn.versaGrid.dimensonscalculated)
+		{
+	  		$(window).resize(function() { grid.resizeGrid(); });
+	  		grid.resizeGrid();
+	  		grid.positionInner();
+	  		$.fn.versaGrid.options.afterinit();
+	  	}
+	  		// constructor end
 
 
 	};

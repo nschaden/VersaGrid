@@ -2,7 +2,7 @@
 
 A versatile, dynamic grid layout plugin for jQuery with a focus on cohesion and uniformity.
 
-Version: 0.2 (alpha)
+Version: 0.3 (alpha)
 Original Author: Nick Schaden
 http://nickschaden.com
 
@@ -35,16 +35,33 @@ VersaGrid is a highly configurable and dynamic grid layout plugin. The focus her
 </div>
 ```
 
-3. There should be a few basic CSS styling rules added to each major type of element, along with a few simple ones to handle VersaGrid's default styling:
+3. There should be a few basic CSS styling rules added to each both the container and item; the container should have be relatively positioned and items should generally be first hidden with display none to avoid a "flash" of not stylized items before the initial VersaGrid calculations are finished:
 
 ```
 #container { position: relative; }
-.item { float: left; left: 0; position: relative; top: 0; }
+.item { display: none; }
+```
+
+4. There's also some simple CSS for VersaGrid elements that can either be directly imported:
+
+```
+<link rel="stylesheet" href="<proper path>/versagrid.css">
+```
+
+Or alternatively, (generally a better move to cut down on http requests) just copy the rules into an existing stylesheet:
+
+```
+.versaGridContainer .versaGridItem { float: left; overflow: hidden; position: relative; }
+.versaGridContainer .versaGridInner { float: left; left: 0; position: absolute; top: 0; } 
+.versaGridContainer .versaGridInner.topLeft { left: 0; top: 0; }
+.versaGridContainer .versaGridInner.topRight { left: auto; right: 0; top: 0; }
+.versaGridContainer .versaGridInner.bottomLeft { bottom: 0; left: 0; top: auto; }
+.versaGridContainer .versaGridInner.bottomRight { bottom: 0; left: auto; right: 0; top: auto; }
 .versaGridContainer .versaGridItem.wide .versaGridInner { width: auto; height: 100%; }
 .versaGridContainer .versaGridItem.tall .versaGridInner { width: 100%; height: auto; }
 ```
 
-4. Run VersaGrid with a simple line of Javascript, ideally to be called on document ready:
+5. Run VersaGrid with a simple line of Javascript, ideally to be called on document ready:
 
 ```
 $(function(){
@@ -76,6 +93,10 @@ $(function(){
 });
 ```
 
+### afterinit
+*Default: function() { grid.children().show(); }*
+
+Because the number and complexity of elements onscreen is unknown, not to mention the processing speed of different browsers, the time needed to process and render the grid on page load can vary. In many instances, this can cause a "flash" of the non styled grid before the proper styling slides into place. To avoid this, items by default should be hidden (display: none in CSS). Once calcuations are finished, a single function is called, afterinit, that by default just shows the grid items with the common jQuery 'show' function. If there's a preferred loading technique, this function can be overridden. For example, one might want to fade in elements with 'function() { $(<select items).fadeIn(); }'
 
 ### basewidth
 *Default: not provided*
@@ -96,6 +117,11 @@ If this is provided, the normally calculated ideal aspect ratio is ignored, and 
 *Default: '\*'*
 
 It's assumed that all elements within a item should be treated as  inner elements, auto centered and resized to maximize their visibility within the boundaries of each item. Yet this only works well for image and video elements; items like text or other specially laid out elements can look strange. Change this jQuery selector from '*' (all elements) to something else in that case, such as 'img' for all images, or '.oneclassname' for a single targeted class.
+
+### positioninner
+*Default: 'center'*
+
+All inner elements by default are absolutely positioned in the middle of its parent item. This is because if any element is cropped, it's assumed that the dead center provides the most useful information. However, in some instances always starting with a single corner and growing outward from there is more useful. For instance, textual information may be more readable when focusing on the top left. To set this, change the string to topLeft,topRight,bottomLeft or bottomRight to start inner element  detail out of each respective corner.
 
 ### smallestbasewidth
 *Default: false*
