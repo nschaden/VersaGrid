@@ -14,14 +14,14 @@ VersaGrid is a highly configurable and dynamic grid layout plugin. The focus her
 
 1. Include jQuery and the VersaGrid script in your markup. VersaGrid requires jQuery v1.4.2 or greater.
 
-<pre><code>
+```
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="<proper path>/versagrid.js"></script>
-</code></pre>
+```
 
 2. VersaGrid works with three types of elements: a single *container* that holds a bunch of *items*, all of the direct children of the container. Finally, within each item there are *inner elements* that are automatically repositioned as well:
 
-<pre><code>
+```
 <div id="#container">
 	<div class="item">
 		<img alt="" class="innerelement" src="sample1.jpg"/>
@@ -33,24 +33,24 @@ VersaGrid is a highly configurable and dynamic grid layout plugin. The focus her
 		<img alt="" class="innerelement" src="sample3.jpg"/>
 	</div>
 </div>
-</code></pre>
+```
 
 3. There should be a few basic CSS styling rules added to each major type of element, along with a few simple ones to handle VersaGrid's default styling:
 
-<pre><code>
+```
 #container { position: relative; }
 .item { float: left; left: 0; position: relative; top: 0; }
 .versaGridContainer .versaGridItem.wide .versaGridInner { width: auto; height: 100%; }
 .versaGridContainer .versaGridItem.tall .versaGridInner { width: 100%; height: auto; }
-</code></pre>
+```
 
 4. Run VersaGrid with a simple line of Javascript, ideally to be called on document ready:
 
-<pre><code>
+```
 $(function(){
 	$('#container').versaGrid();
 });
-</code></pre>
+```
 
 ## How VersaGrid works
 
@@ -66,7 +66,7 @@ $(function(){
 
 Just include optional parameters when invoking VersaGrid. For example:
 
-<pre><code>
+```
 $(function(){
 	$('#container').versaGrid({
 		basewidth:450,
@@ -74,7 +74,7 @@ $(function(){
 		idealaspect:1.5
 	});
 });
-</code></pre>
+```
 
 
 ### basewidth
