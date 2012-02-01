@@ -2,7 +2,7 @@
 
 A versatile, dynamic grid layout plugin for jQuery with a focus on cohesion and uniformity.
 
-Version: 0.3 (alpha)
+Version: 0.4 (alpha)
 Original Author: Nick Schaden
 http://nickschaden.com
 
@@ -12,11 +12,11 @@ VersaGrid is a highly configurable and dynamic grid layout plugin. The focus her
 
 ## Installation
 
-1. Include jQuery and the VersaGrid script in your markup. VersaGrid requires jQuery v1.4.2 or greater.
+1. Include jQuery and the VersaGrid script (minified or unminified) in your markup. VersaGrid requires jQuery v1.4.3 or greater.
 
 ```
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script src="<proper path>/versagrid.js"></script>
+<script src="<proper path>/versagrid.min.js"></script>
 ```
 
 2. VersaGrid works with three types of elements: a single *container* that holds a bunch of *items*, all of the direct children of the container. Finally, within each item there are *inner elements* that are automatically repositioned as well:
@@ -35,7 +35,7 @@ VersaGrid is a highly configurable and dynamic grid layout plugin. The focus her
 </div>
 ```
 
-3. There should be a few basic CSS styling rules added to each both the container and item; the container should have be relatively positioned and items should generally be first hidden with display none to avoid a "flash" of not stylized items before the initial VersaGrid calculations are finished:
+3. There should be a few basic CSS styling rules added to each both the container and item; the container should have be relatively positioned and items should generally be first hidden with display none or visibility hidden to avoid a "flash" of not stylized items before the initial VersaGrid calculations are finished:
 
 ```
 #container { position: relative; }
@@ -69,6 +69,14 @@ $(function(){
 });
 ```
 
+Note if the item inner content contains any imagery or video, it's highly recommended to use David DeSandro's excellent [imagesloaded plugin](https://github.com/desandro/imagesloaded) to trigger the script only after all images have been loaded:
+
+```
+$(#'container').imagesLoaded(function(){
+	$('#container').versaGrid();
+});
+```
+
 ## How VersaGrid works
 
 1. The plugin starts by cycling through all the items within the container, measuring and storing their width and height. 
@@ -94,19 +102,24 @@ $(function(){
 ```
 
 ### afterinit
-*Default: function() { grid.children().show(); }*
+*Default: function() {}*
 
-Because the number and complexity of elements onscreen is unknown, not to mention the processing speed of different browsers, the time needed to process and render the grid on page load can vary. In many instances, this can cause a "flash" of the non styled grid before the proper styling slides into place. To avoid this, items by default should be hidden (display: none in CSS). Once calcuations are finished, a single function is called, afterinit, that by default just shows the grid items with the common jQuery 'show' function. If there's a preferred loading technique, this function can be overridden. For example, one might want to fade in elements with 'function() { $(<select items).fadeIn(); }'
+After VersaGrid is completely done with its loading process, it's possible to call an additional callback function to perform some other action. This is left off by default.
 
 ### basewidth
 *Default: not provided*
 
 If this is provided, the normally calculated "base" width is ignored and instead this is set as the base/max width of any element.
 
-### forcespan
-*Default: true*
+### displaymethod
+*Default: 'show'*
 
-When this boolean is set to true, inner elements of item are automatically stretched/reduced in size to ensure they always cover the edges of each item (note the original aspect ratio is always preserved) giving a cleaner look. However, any sort of auto spanning can cause inner elements to be a bit soft, so this can be set to false; the inner elements will be centered but not resized.
+After VersaGrid is done with its calculations an action is performed to display the finished items. By default, the plugin assumes that all item elements are hidden (see above documentation), and utilizes jQuery's simple show() method to reveal them to the user. There are other display methods other than a standard reveal: 'fadeSlow' and 'fadeFast' fade in content in 800ms or 200ms respectively, and 'none' performs no display actions at all.
+
+### forcespan
+*Default: false*
+
+When this boolean is set to true, inner elements of item are automatically stretched/reduced in size to ensure they always cover the edges of each item (note the original aspect ratio is always preserved) giving a cleaner look. However, any sort of auto spanning can often cause inner elements to be a bit soft, so this is set to false by default; the inner elements will be centered but not resized. *Important note:* when forcespan is false, the smallestbasewidth is ignored.
 
 ### idealaspect
 *Default: not provided*
@@ -123,10 +136,20 @@ It's assumed that all elements within a item should be treated as  inner element
 
 All inner elements by default are absolutely positioned in the middle of its parent item. This is because if any element is cropped, it's assumed that the dead center provides the most useful information. However, in some instances always starting with a single corner and growing outward from there is more useful. For instance, textual information may be more readable when focusing on the top left. To set this, change the string to topLeft,topRight,bottomLeft or bottomRight to start inner element  detail out of each respective corner.
 
+### preventhorizontalgaps
+*Default: true*
+
+When having forcespan off, because inner elements don't automatically span the width or height of the container item, there runs the risk of a gap on the sides. Setting this option to true prevents horizontal gaps by setting the base width to the smallest width available (in that sense, it's effectively the same as smallestbasewidth, but targeted only for when forcespan is off.) Because the general "gist" of this layout is uniformity and no gaps, this is set to true by default and is an ignored option when forcespan is set to true.
+
+### preventverticalgaps
+*Default: true*
+
+When having forcespan off, because inner elements don't automatically span the width or height of the container item, there runs the risk of a gap on the sides. Setting this option to true prevents vertical gaps by increasing the aspect ratio (making the items more horizontal, less vertical) to the point where the natural height of each inner element spans its container item. Like with preventverticalgaps, this is set to true by default and is an ignored option when forcespan is set to true.
+
 ### smallestbasewidth
 *Default: false*
 
-Sometimes inner elements look blurry or otherwise bad when scaled to a size larger than the exact file dimensions. To prevent this from happening, set this boolean option to true. To do so, the base width will be set to the smallest width of all the inner elements measured.
+Sometimes inner elements look blurry or otherwise bad when scaled to a size larger than the exact file dimensions. To prevent this from happening, set this boolean option to true. To do so, the base width will be set to the smallest width of all the inner elements measured. *Important note:* this is always the case for forcespan equal to false, the default behavior.
 
 ### zoom
 *Default: 1*

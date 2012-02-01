@@ -4,19 +4,27 @@
 	{
 		// variables
 		var defaultOptions = {
-			// function to call after initialization is done
-			afterinit: function() { grid.children().show(); },
+			// optional function to be called after versagrid initialization is completely finished
+			afterinit: function() {},
 			// override base width
 			basewidth: null,
-			// force inner elements to span width/height of block (no spaces) 
-			forcespan: true,
+			// after versagrid has done its calculations, methods to display data to user
+			// valid options are show, none, fadeSlow, fadeFast
+			displaymethod: 'show',
+			// force inner elements to span width/height of block 
+			forcespan: false,
 			// override ideal aspect ratio
 			idealaspect: null,
 			// selector element to determine inner elements within block
 			innerelements: '*',
 			// position of inner elements within a block (topLeft,topRight,bottomLeft,bottomRight,center)
 			positioninner: 'center',
-			// forces the base width to be simply smallest width available (then no item stretches past natural size)
+			// also forces base width to be smallest width available to avoid horizontal gaps (only applciable when forcespan is false)
+			preventhorizontalgaps: true,
+			// increases ideal aspect ratio to prevent any vertical gaps in content
+			preventverticalgaps: true,
+			// forces the base width to be simply smallest width available (then no item stretches past natural size, only applicable
+			// when forcespan is true)
 			smallestbasewidth: false,
 			// zoom modifier of base width
 			zoom: 1
@@ -27,7 +35,7 @@
 		$.fn.versaGrid.options = $.extend({},defaultOptions,options);
 		$.fn.versaGrid.previtemsrow = 0;
 		$.fn.versaGrid.dimensonscalculated = false;
-		// public functions
+		// calculate ideal aspect ratio, proper base width
 		this.calcWidthRatio = function()
 		{
 			// gather items
@@ -50,14 +58,14 @@
 	  			// if an item has no calculated width, that implies the item hasn't been loaded yet, so pause, retry init later
 	  			if (w < 1)
 	  			{
-	  				setTimeout(function() { grid.versaGrid(); },500);
+	  				setTimeout(function() { grid.versaGrid(); },200);
 	  				return;
 	  			}	  					
 	  			var a = Math.round((w/h)*10)/10;
 	  			itemdimensions.push({width:w,height:h,aspect:a});
 	  			// map out aspect ratios
 	  			var aspectdata = aspectratios[a];
-	  			aspectratios[a] = (typeof aspect == 'undefined') ? 1 : aspectdata+1;
+	  			aspectratios[a] = (typeof aspectdata == 'undefined') ? 1 : aspectdata+1;
 	  			totalaspects += a;
 
 	  			// map out widths
@@ -96,7 +104,8 @@
 
 	  			for (value in currmap)
 		  		{
-		  			if (i && $.fn.versaGrid.options.smallestbasewidth)
+		  			if (i && (($.fn.versaGrid.options.smallestbasewidth && $.fn.versaGrid.options.forcespan) ||
+		  					  ($.fn.versaGrid.options.preventhorizontalgaps && !$.fn.versaGrid.options.forcespan)))
 		  			{
 		  				// for forced smallest base width, just find the smallest value
 		  				if (value < closedist)
@@ -126,10 +135,72 @@
 		  		else
 		  			basewidth = ideal*$.fn.versaGrid.options.zoom;
 	  		}
+			if (!$.fn.versaGrid.options.forcespan && $.fn.versaGrid.options.preventverticalgaps)
+			{
+				// take check if current ideal aspect ensures total coverage of height, reduce accordingly to ensure no gaps
+				var baseheight = Math.round(basewidth/idealaspect);
+				var foundverticalgap = true;
+				while (foundverticalgap)
+				{
+					foundverticalgap = false;
+					for (i = 0; i < items.length; i++)
+					{
+						if (itemdimensions[i].height < baseheight)
+						{
+							foundverticalgap = true;
+							idealaspect = Math.round((parseFloat(idealaspect) + 0.05)*100)/100;
+							baseheight = Math.round(basewidth/idealaspect);
+							break;
+						}
+					}	
+				}
+			}
 	  		$.fn.versaGrid.idealaspect = idealaspect;
 	  		$.fn.versaGrid.basewidth = basewidth;
 	  		$.fn.versaGrid.itemdimensions = itemdimensions;
 		};
+		// clear modifications on elements from previous versagrid calls
+		this.clearExistingGrid = function()
+		{
+			var items = this.children();
+			if (!items.hasClass('versaGridItem')) return;
+			var inner = items.find('.versaGridInner');
+			items.css({'width':'auto','height':'auto'});
+			inner.css({'left':'0','top':'0'}).removeClass('wide').removeClass('tall').removeClass('versaGridInner');	
+			$(window).unbind('resize.versaGrid');
+		};
+		// display versagrid content after resizing and other calculations are finished
+		this.display = function()
+		{
+			var items = this.children();
+			if ($.fn.versaGrid.options.displaymethod == 'fadeSlow' || $.fn.versaGrid.options.displaymethod == 'fadeFast')
+			{
+				var speed = ($.fn.versaGrid.options.displaymethod == 'fadeSlow') ? 800 : 200;
+				if (items.css('visibility') == 'hidden')
+				{
+					items.css({'opacity':0,'visibility':'visible'});
+					items.first().fadeTo(speed,1,$.fn.versaGrid.options.afterinit);
+					items.not(':first').fadeTo(speed,1);
+				}
+				else
+				{
+					items.first().fadeIn(speed,$.fn.versagrid.options.afterinit);
+					items.not(':first').fadeIn(speed);
+				}
+			}
+			else if ($.fn.versaGrid.options.displaymethod == 'show')
+			{
+				if (items.css('visibility') == 'hidden')
+					items.css('visibility','visible');
+				else
+					items.show();
+				$.fn.versaGrid.options.afterinit();
+			}
+			else
+				$.fn.versaGrid.options.afterinit();
+			
+		};
+		// position inner elements properly
 		this.positionInner = function()
 		{
 			var items = this.children();
@@ -164,6 +235,7 @@
 	  			}
 	  		}
 		};
+		// called on init and when resizing the window, determines proper items per row and column, sets width/height of each accordingly
 		this.resizeGrid = function()
 		{
 			// init core values 
@@ -179,7 +251,6 @@
 	  		
 	  		// adjust outer container height
 	  		this.height(items_col*(this.width()/items_row/idealaspect));
-	  		// items.css('height',this.width()/items_row/idealaspect + 'px');
 	  		if (items_row != previtemsrow)
 	  		{
 	  			// adjust item width, height
@@ -212,16 +283,15 @@
 		// constructor begin
 		var grid = this;
 		grid.addClass('versaGridContainer');
+		grid.clearExistingGrid();
 		grid.calcWidthRatio();
 		if ($.fn.versaGrid.dimensonscalculated)
 		{
-	  		$(window).resize(function() { grid.resizeGrid(); });
+	  		$(window).bind('resize.versaGrid',function() { grid.resizeGrid(); });
 	  		grid.resizeGrid();
 	  		grid.positionInner();
-	  		$.fn.versaGrid.options.afterinit();
+	  		grid.display();
 	  	}
-	  		// constructor end
-
-
+	  	// constructor end
 	};
 })(jQuery);

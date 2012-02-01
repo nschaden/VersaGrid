@@ -205,14 +205,14 @@ body { background: #222; color: #eee; font-family: 'helvetica neue',helvetica,ar
 #main { position: relative; margin: 100px 0; }
 #main div { display: none; }
 
-.versaGridContainer .versaGridItem { float: left; overflow: hidden; position: relative; }
 .versaGridContainer .versaGridInner { float: left; left: 0; position: absolute; top: 0; } 
-.versaGridContainer .versaGridInner.topLeft { left: 0; top: 0; }
-.versaGridContainer .versaGridInner.topRight { left: auto; right: 0; top: 0; }
 .versaGridContainer .versaGridInner.bottomLeft { bottom: 0; left: 0; top: auto; }
 .versaGridContainer .versaGridInner.bottomRight { bottom: 0; left: auto; right: 0; top: auto; }
-.versaGridContainer .versaGridItem.wide .versaGridInner { width: auto; height: 100%; }
+.versaGridContainer .versaGridInner.topLeft { left: 0; top: 0; }
+.versaGridContainer .versaGridInner.topRight { left: auto; right: 0; top: 0; }
+.versaGridContainer .versaGridItem { float: left; overflow: hidden; position: relative; }
 .versaGridContainer .versaGridItem.tall .versaGridInner { width: 100%; height: auto; }
+.versaGridContainer .versaGridItem.wide .versaGridInner { width: auto; height: 100%; }
 
 header, footer { clear: both; margin: 50px 0; text-align: center; }
 
