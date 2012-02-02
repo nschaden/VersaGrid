@@ -259,8 +259,7 @@
 					'width' : (1/items_row*100) + '%',
 					'height': (1/items_col*100) + '%'
 			  	});
-			  	if (items_row % 2 == 0)
-					items.filter(':nth-child(' + items_row + 'n)').addClass('lastunit');
+				items.filter(':nth-child(' + items_row + 'n)').addClass('lastunit');
 	  		}
 
 	  		// unfortunately for non spanned item, extra work to center item
