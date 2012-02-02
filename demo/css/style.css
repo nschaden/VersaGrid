@@ -211,6 +211,7 @@ body { background: #222; color: #eee; font-family: 'helvetica neue',helvetica,ar
 .versaGridContainer .versaGridInner.topLeft { left: 0; top: 0; }
 .versaGridContainer .versaGridInner.topRight { left: auto; right: 0; top: 0; }
 .versaGridContainer .versaGridItem { float: left; overflow: hidden; position: relative; }
+.versaGridContainer .versaGridItem.lastunit { margin-right: -1px; }
 .versaGridContainer .versaGridItem.tall .versaGridInner { width: 100%; height: auto; }
 .versaGridContainer .versaGridItem.wide .versaGridInner { width: auto; height: 100%; }
 
